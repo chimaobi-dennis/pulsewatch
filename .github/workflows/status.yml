@@ -1,0 +1,55 @@
+# Serverless mode: GitHub Actions runs the checks on a schedule, keeps the history
+# in the Actions cache, and publishes the page to GitHub Pages.
+# Enable Pages (Settings → Pages → Source: GitHub Actions) for the deploy job to work.
+name: Status page
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: status-page
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Restore check history
+        uses: actions/cache/restore@v4
+        with:
+          path: data
+          key: pulsewatch-data-${{ github.run_id }}
+          restore-keys: pulsewatch-data-
+      - run: npx tsx src/cli/index.ts check || true
+      - run: npx tsx src/cli/index.ts generate -o site/index.html --json site/status.json
+      - name: Save check history
+        uses: actions/cache/save@v4
+        with:
+          path: data
+          key: pulsewatch-data-${{ github.run_id }}
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+  deploy:
+    needs: check
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

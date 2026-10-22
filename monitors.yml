@@ -1,0 +1,33 @@
+# pulsewatch configuration for the sites I run. `pulsewatch check` records one round;
+# `pulsewatch run -p 3030` keeps checking and serves the page.
+title: IGSOFT services
+description: Live status of sites and APIs maintained by IGSOFT Web.
+interval: 60
+timeout: 10000
+retries: 2
+retentionDays: 90
+
+monitors:
+  - name: Vertoc Agro
+    url: https://www.vertocagro.com
+    expectStatus: [200]
+    group: Websites
+
+  - name: GitHub
+    url: https://github.com/chimaobi-dennis
+    group: External
+
+  - name: npm registry
+    url: https://registry.npmjs.org/-/ping
+    expectStatus: [200]
+    group: External
+
+  - name: Cloudflare DNS (TCP)
+    type: tcp
+    host: 1.1.1.1
+    port: 53
+    group: External
+
+notifiers: []
+#  - type: slack
+#    url: ${SLACK_WEBHOOK_URL}
