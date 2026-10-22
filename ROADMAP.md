@@ -2,7 +2,7 @@
 
 Status key: ✅ done · 🔨 in progress · ⏳ planned
 
-## Phase 1 — Core monitor (v0.1) ✅ 2026-10-22
+## Phase 1 — Core monitor (v0.1) ✅ 2026-01-02
 
 - ✅ HTTP and TCP checks with timeouts, status and body assertions, env-expanded headers
 - ✅ TLS certificate expiry on https checks
